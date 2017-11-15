@@ -76,12 +76,17 @@ public class ImageList
 		array=this.MergeSort(0, newArrayIndex);
 	}
 	
+	public int getSize()
+	{
+		return array.length;
+	}
+	
 	private ImageData[] MergeSort(int start, int finish)
 	{
 		//Sorts all image by aspect ratio, in order to minimize the number
 		//of images that need to be compared.
 		int size=finish-start;
-		if (size==1)
+		if (size<=1)
 		{
 			return new ImageData[] {array[start]};
 		}
