@@ -29,6 +29,7 @@ public class ImageList
 	{
 		this.deleteAll=deleteAll;
 		this.sourceAll=sourceAll;
+		this.constructList(path);
 	}
 	
 	private void constructList(File path)
@@ -141,10 +142,16 @@ public class ImageList
 			{
 				//Compares images within a certain threshold based on aspect ratio.
 				DuplicateImages thisPair = array[i].compareTo(array[j]);
-				if (thisPair!=null)
+				
+				if (thisPair!=null && deleteAll==false)
 				{
 					output.push(thisPair);
 				}
+				else if (thisPair!=null && deleteAll==true)
+				{
+					thisPair.deleteSmallerImage();
+				}
+				
 				if(Math.abs(thisRatio-array[j].getRatio())>.1)
 					loop=false;
 				
