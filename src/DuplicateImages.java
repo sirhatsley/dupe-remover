@@ -14,4 +14,18 @@ public class DuplicateImages
 		this.image2=image2;
 		this.similarity=similarity;
 	}
+	
+	public void deleteSmallerImage()
+	{
+		//Deletes whichever image is smaller
+		if (image1.width<image2.width)
+		{
+			image1.imagePath.deleteOnExit();
+		}
+		
+		if (image2.width<=image1.width)
+		{
+			image2.imagePath.deleteOnExit();
+		}
+	}
 }
