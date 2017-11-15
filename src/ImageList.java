@@ -78,6 +78,7 @@ public class ImageList
 	
 	public int getSize()
 	{
+		//Returns the size of the image.
 		return array.length;
 	}
 	
