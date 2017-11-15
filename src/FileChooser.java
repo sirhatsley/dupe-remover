@@ -87,7 +87,7 @@ public class FileChooser extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jFileChooser1ActionPerformed
         if (evt.getActionCommand()==JFileChooser.APPROVE_SELECTION)
 		{
-			Driver.loadImages(jFileChooser1.getSelectedFile());
+			Driver.loadImages(jFileChooser1.getSelectedFile(),deleteEverything);
 		}
 		if (evt.getActionCommand()==JFileChooser.CANCEL_SELECTION)
 		{
