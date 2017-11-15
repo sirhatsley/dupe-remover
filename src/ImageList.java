@@ -1,31 +1,34 @@
-import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Stack;
-import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
-import javax.swing.JProgressBar;
+
+/*
+An object which creates a list of images which can also sort, process, and
+delete images.
+*/
 
 public class ImageList
 {
 	private File path;
 	private ImageData[] array;
-	private ImageJFrame frame;
+	private boolean deleteAll;
+	private boolean sourceAll;
+	
 	
 	public ImageList(File path)
 	{
+		deleteAll=false;
+		sourceAll=false;
 		this.constructList(path);
 	}
 	
-	public ImageList(File path, ImageJFrame frame)
+	public ImageList(File path, boolean deleteAll, boolean sourceAll)
 	{
-		this.frame=frame;
-		this.constructList(path);
+		this.deleteAll=deleteAll;
+		this.sourceAll=sourceAll;
 	}
 	
 	private void constructList(File path)
@@ -49,6 +52,7 @@ public class ImageList
 			System.out.println("Processing... "+(i+1)+"/"+images.length);
 			try
 			{
+				//Reads an image and adds the ImageData to an array.
 				buffer = ImageIO.read(images[i]);
 				array[newArrayIndex] = new ImageData(images[i],buffer);
 				newArrayIndex++;
@@ -61,12 +65,21 @@ public class ImageList
 			{
 				System.out.println(""+images[i]+" not a valid image file.");
 			}
+			
+			if(sourceAll==true)
+			{
+				//If the user wants to source their images, adds the source to
+				//the .EXIF fields.
+			}
 		}
+		//Sorts the array.
 		array=this.MergeSort(0, newArrayIndex);
 	}
 	
 	private ImageData[] MergeSort(int start, int finish)
 	{
+		//Sorts all image by aspect ratio, in order to minimize the number
+		//of images that need to be compared.
 		int size=finish-start;
 		if (size==1)
 		{
@@ -120,22 +133,19 @@ public class ImageList
 			boolean loop=true;
 			while(loop)
 			{
-				if ((Math.abs(array[i].reds-array[j].reds)<2) &&
-					(Math.abs(array[i].greens-array[j].greens)<2) &&
-					(Math.abs(array[i].blues-array[j].blues)<2))
+				//Compares images within a certain threshold based on aspect ratio.
+				DuplicateImages thisPair = array[i].compareTo(array[j]);
+				if (thisPair!=null)
 				{
-					DuplicateImages thisPair = array[i].compareTo(array[j]);
-					if (thisPair!=null)
-					{
-						output.push(thisPair);
-					}
+					output.push(thisPair);
 				}
+				if(Math.abs(thisRatio-array[j].getRatio())>.1)
+					loop=false;
 				
 				j++;
 				if(j>=array.length-1)
 					loop=false;
-				if(Math.abs(thisRatio-array[i].getRatio())>.1)
-					loop=false;
+
 			}
 		}
 		return output;
