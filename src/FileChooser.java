@@ -1,3 +1,7 @@
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+
 /*
 A GUI which represents a screen with which the user can configure multiple
 options and choose their desired folder.
@@ -8,10 +12,16 @@ public class FileChooser extends javax.swing.JFrame
 	/**
 	 * Creates new form FileChooser
 	 */
+	private boolean deleteEverything;
+	
 	public FileChooser()
 	{
 		initComponents();
+		deleteEverything=false;
+		jFileChooser1.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		jFileChooser1.setApproveButtonText("Select Folder");
 		jCheckBox1.setText("Delete all images?");
+
 	}
 
 	/**
@@ -25,8 +35,8 @@ public class FileChooser extends javax.swing.JFrame
     {
 
         jFileChooser1 = new javax.swing.JFileChooser();
-        jLabel1 = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
+        jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -37,8 +47,6 @@ public class FileChooser extends javax.swing.JFrame
                 jFileChooser1ActionPerformed(evt);
             }
         });
-
-        jLabel1.setText("Please Select A Folder...");
 
         jCheckBox1.setText("jCheckBox1");
         jCheckBox1.addActionListener(new java.awt.event.ActionListener()
@@ -53,23 +61,23 @@ public class FileChooser extends javax.swing.JFrame
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jFileChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+            .addComponent(jFileChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, 859, Short.MAX_VALUE)
+            .addComponent(jSeparator1)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jCheckBox1)
-                .addGap(207, 207, 207))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 6, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jCheckBox1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jFileChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 371, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, 0)
+                .addComponent(jFileChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jCheckBox1)
+                .addContainerGap())
         );
 
         pack();
@@ -77,13 +85,20 @@ public class FileChooser extends javax.swing.JFrame
 
     private void jFileChooser1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jFileChooser1ActionPerformed
     {//GEN-HEADEREND:event_jFileChooser1ActionPerformed
-        Driver.loadImages(jFileChooser1.getCurrentDirectory());
+        if (evt.getActionCommand()==JFileChooser.APPROVE_SELECTION)
+		{
+			Driver.loadImages(jFileChooser1.getSelectedFile());
+		}
+		if (evt.getActionCommand()==JFileChooser.CANCEL_SELECTION)
+		{
+			System.exit(0);
+		}
 		//jFileChooser1.getCurrentDirectory();
     }//GEN-LAST:event_jFileChooser1ActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jCheckBox1ActionPerformed
     {//GEN-HEADEREND:event_jCheckBox1ActionPerformed
-        // TODO add your handling code here:
+		deleteEverything=jCheckBox1.isSelected();
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
 	/**
@@ -134,6 +149,6 @@ public class FileChooser extends javax.swing.JFrame
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JFileChooser jFileChooser1;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JSeparator jSeparator1;
     // End of variables declaration//GEN-END:variables
 }
