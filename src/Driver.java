@@ -25,17 +25,24 @@ public class Driver
 		choose.setVisible(true);
 	}
 	
-	public static void loadImages(File file)
+	public static void loadImages(File file, boolean deleteAll)
 	{
 		choose.setVisible(false);
 		ImageList list;
-		list = new ImageList(file);
+		list = new ImageList(file,deleteAll,false);
 		Deque<DuplicateImages> dupes;
 		dupes=list.CountDupes();
 		
 		if (dupes.size()==0)
 		{
-			JOptionPane.showMessageDialog(null, "No duplicates found.");
+			if (deleteAll==false)
+			{
+				JOptionPane.showMessageDialog(null, "No duplicates found.");
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "Complete.");
+			}
 			System.exit(0);
 		}
 
