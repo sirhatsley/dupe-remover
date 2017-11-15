@@ -3,7 +3,9 @@ import java.io.File;
 import java.util.Deque;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 
 public class Driver
@@ -13,32 +15,13 @@ public class Driver
 	
 	public static void main(String[] args)
 	{
-		/*ImageList list;
-		list = new ImageList(new File("C:\\Users\\Tim\\Desktop\\Shaftastic"));
-		//System.out.println(list.CountDupes());
-		//list = new ImageList(new File("C:\\Users\\Tim\\Google Drive\\Neggiri"));
-		Deque<DuplicateImages> dupes = list.CountDupes();
-		
-		JFrame f=new JFrame();
-		JPanel panel = new JPanel();
-		JButton nextButton=new JButton();
-
-		while (dupes.size()>0)
+		try
 		{
-			
-			DuplicateImages thisDupe=dupes.pop();
-			int maxHeight = (int)Math.max((400.0/thisDupe.image1.width)*thisDupe.image1.height,
-							(200.0/thisDupe.image2.width)*thisDupe.image2.height)+100;  
-			ImageGUI one=new ImageGUI(thisDupe);
-			f.add(one);
-			f.setSize(800,maxHeight);
-			f.setVisible(true);
-			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
-
-		//ImageJFrame theFrame = new ImageJFrame(dupes);
-				*/
+		catch(Exception e){}
 		choose = new FileChooser();
+		choose.setTitle("Please select a file...");
 		choose.setVisible(true);
 	}
 	
@@ -47,7 +30,17 @@ public class Driver
 		choose.setVisible(false);
 		ImageList list;
 		list = new ImageList(file);
+		Deque<DuplicateImages> dupes;
+		dupes=list.CountDupes();
 		
-		new ImageJFrame(list).setVisible(true);
+		if (dupes.size()==0)
+		{
+			JOptionPane.showMessageDialog(null, "No duplicates found.");
+			System.exit(0);
+		}
+
+		ImageJFrame listFrame = new ImageJFrame(dupes);
+		listFrame.setResizable(false);
+		listFrame.setVisible(true);
 	}
 }
