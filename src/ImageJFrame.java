@@ -1,6 +1,7 @@
 
 import java.io.File;
 import java.util.Deque;
+import javax.swing.JOptionPane;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -26,17 +27,17 @@ public class ImageJFrame extends javax.swing.JFrame
 		initComponents();
 	}
 	
-	public ImageJFrame(ImageList list)
+	public ImageJFrame(Deque<DuplicateImages> dupes)
 	{
 		initComponents();
-		
-		dupes=list.CountDupes();
-		jButton1.setText("Delet");
-		jButton2.setText("Protecc");
+		this.dupes=dupes;
+		jButton1.setText("Delete");
+		jButton2.setText("Keep Both");
 		size=dupes.size();
 		jProgressBar1.setMaximum(size);
 		i=0;
 		nextImage();
+
 	}
 
 
@@ -134,30 +135,34 @@ public class ImageJFrame extends javax.swing.JFrame
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton1ActionPerformed
     {//GEN-HEADEREND:event_jButton1ActionPerformed
-		if(dupes.size()>0)
-		{
-			nextImage();
-		}
+		nextImage();
 		//jPanel1.add(new ImageGUI(dupes.pop()));
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton2ActionPerformed
     {//GEN-HEADEREND:event_jButton2ActionPerformed
-        if(dupes.size()>0)
-		{
-			nextImage();
-		}
+		nextImage();
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
 	
 	private void nextImage()
 	{
-		i++;
-		jProgressBar1.setValue(i);
-		DuplicateImages thisDupe=dupes.pop();
-		ImageGUI gui = new ImageGUI(thisDupe);
-		jPanel1.add(gui);
-		gui.setSize(800, 300);
+		if(dupes.size()>0)
+		{
+			i++;
+			jProgressBar1.setValue(i);
+			DuplicateImages thisDupe=dupes.pop();
+			ImageGUI gui = new ImageGUI(thisDupe);
+			jPanel1.add(gui);
+			gui.setSize(800, 300);
+		}
+		else
+		{
+			this.setVisible(false);
+			JOptionPane.showMessageDialog(null, "Complete.");
+			System.exit(0);
+		}
 	}
 	/**
 	 * @param args the command line arguments
