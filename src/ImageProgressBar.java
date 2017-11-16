@@ -26,43 +26,6 @@ public class ImageProgressBar extends JPanel
 		pbar.setValue(newValue);
 	}
 
-	public static void main(String args[])
-	{
-		ImageList list = new ImageList(new File("C:\\Users\\Tim\\Desktop\\Shaftastic"));
-		ImageProgressBar it = new ImageProgressBar(list.filesLength);
-		
-		JFrame frame = new JFrame("Progress Bar Example");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(it);
-		frame.pack();
-		frame.setVisible(true);
-		
-		// run a loop to demonstrate raising
-		for (int i = 0; i <= list.filesLength; i++) 
-		{
-			final int percent = i;
-			try 
-			{
-				SwingUtilities.invokeLater(new Runnable() 
-				{
-					public void run()
-					{
-						list.constructImage(percent);
-						it.updateBar(percent);
-					}
-				});
-				java.lang.Thread.sleep(100);
-			  } catch (InterruptedException e) {;}
-		}
-		SwingUtilities.invokeLater(new Runnable() 
-		{
-			public void run()
-			{
-				list.MergeSort();
-			}
-		});
-	}
-	
 	public static void constructList(ImageList list)
 	{
 		//ImageList list = new ImageList(new File("C:\\Users\\Tim\\Desktop\\SugoiBox"));
@@ -94,6 +57,14 @@ public class ImageProgressBar extends JPanel
 				java.lang.Thread.sleep(100);
 			  } catch (InterruptedException e) {;}
 		}
+		
+		SwingUtilities.invokeLater(new Runnable() 
+		{
+			public void run()
+			{
+				frame.setVisible(false);
+			}
+		});
 	}	
 
 }
