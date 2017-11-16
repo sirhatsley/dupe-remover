@@ -42,6 +42,8 @@ public class Driver
 				{
 					public void run()
 					{
+						java.awt.Toolkit.getDefaultToolkit().beep();
+						list.MergeSort();
 						Deque<DuplicateImages> dupes;
 						dupes=list.CountDupes();
 
