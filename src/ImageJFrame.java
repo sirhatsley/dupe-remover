@@ -17,7 +17,7 @@ public class ImageJFrame extends javax.swing.JFrame
 {
 	private int size;
 	private int i;
-	
+	private DuplicateImages thisDupe;
 	private static Deque<DuplicateImages> dupes;
 	/**
 	 * Creates new form ImageJFrame
@@ -135,8 +135,8 @@ public class ImageJFrame extends javax.swing.JFrame
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton1ActionPerformed
     {//GEN-HEADEREND:event_jButton1ActionPerformed
+		thisDupe.deleteSmallerImage();
 		nextImage();
-		//jPanel1.add(new ImageGUI(dupes.pop()));
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jButton2ActionPerformed
@@ -152,7 +152,7 @@ public class ImageJFrame extends javax.swing.JFrame
 		{
 			i++;
 			jProgressBar1.setValue(i);
-			DuplicateImages thisDupe=dupes.pop();
+			thisDupe=dupes.pop();
 			ImageGUI gui = new ImageGUI(thisDupe);
 			jPanel1.add(gui);
 			gui.setSize(800, 300);

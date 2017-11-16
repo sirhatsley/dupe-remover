@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import javax.imageio.ImageIO;
 
 /*
@@ -16,6 +17,10 @@ public class ImageList
 	private ImageData[] array;
 	private boolean deleteAll;
 	private boolean sourceAll;
+	private File[] images;
+	public int filesLength;
+	private int newArrayIndex;
+	
 	
 	
 	public ImageList(File path)
@@ -40,15 +45,20 @@ public class ImageList
 			"ImageList requires a valid directory as parameter.");
 		
 		this.path=path;
-		File[] images = path.listFiles();
+		images = path.listFiles();
 		
-		System.out.println(images.length);
 		array = new ImageData[images.length];
 		
-		int newArrayIndex=0;
-		for (int i=0; i<images.length; i++)
+		filesLength = images.length;
+		newArrayIndex=0;
+	}
+	
+	public void constructImage(int i)
+	{
+		System.out.println("Images: " +images.length);
+		System.out.println("Files: " +array.length);
+		if (i<images.length)
 		{
-			//Constructs the image array
 			BufferedImage buffer=null;
 			System.out.println("Processing... "+(i+1)+"/"+images.length);
 			try
@@ -66,21 +76,25 @@ public class ImageList
 			{
 				System.out.println(""+images[i]+" not a valid image file.");
 			}
-			
+
 			if(sourceAll==true)
 			{
 				//If the user wants to source their images, adds the source to
 				//the .EXIF fields.
 			}
 		}
-		//Sorts the array.
-		array=this.MergeSort(0, newArrayIndex);
 	}
 	
 	public int getSize()
 	{
 		//Returns the size of the image.
 		return array.length;
+	}
+	
+	public void MergeSort()
+	{
+		array = MergeSort(0, newArrayIndex);
+		System.out.println("sorted");
 	}
 	
 	private ImageData[] MergeSort(int start, int finish)
