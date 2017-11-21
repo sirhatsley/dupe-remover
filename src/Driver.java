@@ -12,6 +12,8 @@ import javax.swing.UIManager;
 public class Driver
 {
 	private static FileChooser choose;
+	private static boolean deleteAll;
+	private static ImageList list;
 	
 	public static void main(String[] args)
 	{
@@ -27,49 +29,45 @@ public class Driver
 		//ImageProgressBar.main(null);
 	}
 	
-	public static void loadImages(File file, boolean deleteAll)
+	public static void loadImages(File file, boolean deleteEverything, boolean sourceAll)
 	{
-
+		deleteAll=deleteEverything;
 		choose.setVisible(false);
 
 		new Thread(new Runnable() {
 			public void run()
 			{
-				ImageList list;
-				list = new ImageList(file,deleteAll,false);
-				ImageProgressBar.constructList(list);
-				SwingUtilities.invokeLater(new Runnable() 
-				{
-					public void run()
-					{
-						java.awt.Toolkit.getDefaultToolkit().beep();
-						list.MergeSort();
-						Deque<DuplicateImages> dupes;
-						dupes=list.CountDupes();
-
-						if (dupes.size()==0)
-						{
-							if (deleteAll==false)
-							{
-								JOptionPane.showMessageDialog(null, "No duplicates found.");
-							}
-							else
-							{
-								JOptionPane.showMessageDialog(null, "Complete.");
-							}
-							System.exit(0);
-						}
-
-						ImageJFrame listFrame = new ImageJFrame(dupes);
-						listFrame.setResizable(false);
-						listFrame.setLocationRelativeTo(null);
-						listFrame.setVisible(true);
-					}
-				});
+				list = new ImageList(file,deleteAll,sourceAll);
+				new ImageProgressBar().constructList(list);
 				
 			}
 		}).start();
 		
 
 	}
+	
+	public static void deleteDupes()
+	{
+		Deque<DuplicateImages> dupes;
+		dupes=list.CountDupes();
+
+		if (dupes.size()==0)
+		{
+			if (deleteAll==false)
+			{
+				JOptionPane.showMessageDialog(null, "No duplicates found.");
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "Complete.");
+			}
+			System.exit(0);
+		}
+
+		ImageJFrame listFrame = new ImageJFrame(dupes);
+		listFrame.setResizable(false);
+		listFrame.setLocationRelativeTo(null);
+		listFrame.setVisible(true);
+	}
 }
+

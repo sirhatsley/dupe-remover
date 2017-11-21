@@ -53,10 +53,8 @@ public class ImageList
 		newArrayIndex=0;
 	}
 	
-	public void constructImage(int i)
+	public synchronized void constructImage(int i)
 	{
-		System.out.println("Images: " +images.length);
-		System.out.println("Files: " +array.length);
 		if (i<images.length)
 		{
 			BufferedImage buffer=null;
@@ -67,6 +65,12 @@ public class ImageList
 				buffer = ImageIO.read(images[i]);
 				array[newArrayIndex] = new ImageData(images[i],buffer);
 				newArrayIndex++;
+				if(sourceAll==true)
+				{
+					//If the user wants to source their images, adds the source to
+					//the .EXIF fields.
+					System.out.println(SourceFinder.findSource(images[i]));
+				}
 			}
 			catch(IOException e)
 			{
@@ -75,12 +79,6 @@ public class ImageList
 			catch(NullPointerException e)
 			{
 				System.out.println(""+images[i]+" not a valid image file.");
-			}
-
-			if(sourceAll==true)
-			{
-				//If the user wants to source their images, adds the source to
-				//the .EXIF fields.
 			}
 		}
 	}

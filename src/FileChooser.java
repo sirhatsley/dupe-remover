@@ -13,14 +13,17 @@ public class FileChooser extends javax.swing.JFrame
 	 * Creates new form FileChooser
 	 */
 	private boolean deleteEverything;
+	private boolean sourceEverything;
 	
 	public FileChooser()
 	{
 		initComponents();
 		deleteEverything=false;
+		sourceEverything=false;
 		jFileChooser1.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		jFileChooser1.setApproveButtonText("Select Folder");
-		jCheckBox1.setText("Delete all images?");
+		jCheckBox1.setText("Delete all duplicates?");
+		jCheckBox2.setText("Source all images?");
 
 	}
 
@@ -37,6 +40,7 @@ public class FileChooser extends javax.swing.JFrame
         jFileChooser1 = new javax.swing.JFileChooser();
         jCheckBox1 = new javax.swing.JCheckBox();
         jSeparator1 = new javax.swing.JSeparator();
+        jCheckBox2 = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -57,6 +61,15 @@ public class FileChooser extends javax.swing.JFrame
             }
         });
 
+        jCheckBox2.setText("jCheckBox2");
+        jCheckBox2.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jCheckBox2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -66,6 +79,8 @@ public class FileChooser extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jCheckBox1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jCheckBox2)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -76,7 +91,9 @@ public class FileChooser extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCheckBox1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCheckBox1)
+                    .addComponent(jCheckBox2))
                 .addContainerGap())
         );
 
@@ -87,7 +104,7 @@ public class FileChooser extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jFileChooser1ActionPerformed
         if (evt.getActionCommand()==JFileChooser.APPROVE_SELECTION)
 		{
-			Driver.loadImages(jFileChooser1.getSelectedFile(),deleteEverything);
+			Driver.loadImages(jFileChooser1.getSelectedFile(),deleteEverything,sourceEverything);
 		}
 		if (evt.getActionCommand()==JFileChooser.CANCEL_SELECTION)
 		{
@@ -100,6 +117,11 @@ public class FileChooser extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jCheckBox1ActionPerformed
 		deleteEverything=jCheckBox1.isSelected();
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jCheckBox2ActionPerformed
+    {//GEN-HEADEREND:event_jCheckBox2ActionPerformed
+        sourceEverything=jCheckBox2.isSelected();
+    }//GEN-LAST:event_jCheckBox2ActionPerformed
 
 	/**
 	 * @param args the command line arguments
@@ -148,6 +170,7 @@ public class FileChooser extends javax.swing.JFrame
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JSeparator jSeparator1;
     // End of variables declaration//GEN-END:variables
