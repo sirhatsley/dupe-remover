@@ -20,6 +20,10 @@ import java.util.LinkedList;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
+/*
+	Finds the source of an image using Saucenao
+*/
+
 public class SourceFinder
 {
 	public static void main(String[] args) throws Exception

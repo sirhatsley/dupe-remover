@@ -1,9 +1,13 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.Predicate;
 import javax.imageio.ImageIO;
 
 /*
@@ -11,111 +15,95 @@ An object which creates a list of images which can also sort, process, and
 delete images.
 */
 
-public class ImageList
+public class ImageList implements Serializable
 {
+	private static final long serialVersionUID = -1;
 	private File path;
-	private ImageData[] array;
-	private boolean deleteAll;
+	//private LinkedList<ImageData> list;
+	private HashMap<File,ImageData> map;
+	private Object[] array;
 	private boolean sourceAll;
-	private File[] images;
-	public int filesLength;
-	private int newArrayIndex;
 	
 	
-	
-	public ImageList(File path)
+	public ImageList()
 	{
-		deleteAll=false;
 		sourceAll=false;
-		this.constructList(path);
+		map = new HashMap<File,ImageData>();
+		//list = new LinkedList<ImageData>();
 	}
 	
-	public ImageList(File path, boolean deleteAll, boolean sourceAll)
+	public ImageList(File path, boolean sourceAll)
 	{
-		this.deleteAll=deleteAll;
 		this.sourceAll=sourceAll;
-		this.constructList(path);
+		map = new HashMap<File,ImageData>();
+		//list = new LinkedList<ImageData>();
 	}
 	
-	private void constructList(File path)
+	public synchronized void addImage(File image)
 	{
-		if(path==null) throw new IllegalArgumentException(
-			"Null path in ImageList constructor.");
-		if(!path.isDirectory()) throw new IllegalArgumentException(
-			"ImageList requires a valid directory as parameter.");
-		
-		this.path=path;
-		images = path.listFiles();
-		
-		array = new ImageData[images.length];
-		
-		filesLength = images.length;
-		newArrayIndex=0;
-	}
-	
-	public synchronized void constructImage(int i)
-	{
-		if (i<images.length)
+		if (image==null)
 		{
-			BufferedImage buffer=null;
-			System.out.println("Processing... "+(i+1)+"/"+images.length);
-			try
+			throw new IllegalArgumentException("Null image in addImage.");
+		}
+		BufferedImage buffer=null;
+		try
+		{
+			//Reads an image and adds the ImageData to an array.
+			
+			ImageData thisImage;
+			if(!map.containsKey(image))
 			{
-				//Reads an image and adds the ImageData to an array.
-				buffer = ImageIO.read(images[i]);
-				array[newArrayIndex] = new ImageData(images[i],buffer);
-				newArrayIndex++;
-				if(sourceAll==true)
-				{
-					//If the user wants to source their images, adds the source to
-					//the .EXIF fields.
-					System.out.println(SourceFinder.findSource(images[i]));
-				}
+				buffer = ImageIO.read(image);
+				thisImage = new ImageData(image,buffer);
+				map.put(image, thisImage);
+				//list.add(thisImage);
 			}
-			catch(IOException e)
+			else
 			{
-				System.out.println(""+images[i]+" not a valid image file.");
+				System.out.println("Image already added");
 			}
-			catch(NullPointerException e)
+			if(sourceAll==true)
 			{
-				System.out.println(""+images[i]+" not a valid image file.");
+				System.out.println(SourceFinder.findSource(image));
 			}
+		}
+		catch(IOException e)
+		{
+			System.out.println(""+image+" not a valid image file.");
+		}
+		catch(NullPointerException e)
+		{
+			System.out.println(""+image+" not a valid image file.");
 		}
 	}
 	
 	public int getSize()
 	{
-		//Returns the size of the image.
-		return array.length;
+		//Returns the size of the image list.
+		return map.size();
 	}
 	
-	public void MergeSort()
-	{
-		array = MergeSort(0, newArrayIndex);
-		System.out.println("sorted");
-	}
-	
-	private ImageData[] MergeSort(int start, int finish)
+	private Object[] MergeSort(int start, int finish)
 	{
 		//Sorts all image by aspect ratio, in order to minimize the number
 		//of images that need to be compared.
 		int size=finish-start;
 		if (size<=1)
 		{
-			return new ImageData[] {array[start]};
+			return new Object[] {array[start]};
 		}
-		ImageData[] a = MergeSort(start+size/2,finish);
-		ImageData[] b = MergeSort(start,start+size/2);
+		Object[] a = MergeSort(start+size/2,finish);
+		Object[] b = MergeSort(start,start+size/2);
 		int aIndex = 0;
 		int bIndex = 0;
-		ImageData[] output = new ImageData[size];
+		Object[] output = new ImageData[size];
 		for(int i=0; i<size; i++)
 		{
 			if(aIndex<a.length)
 			{
 				if(bIndex<b.length)
 				{
-					if(a[aIndex].getRatio()>b[bIndex].getRatio())
+					if(((ImageData)a[aIndex]).getRatio()>((ImageData)b[bIndex]).getRatio())
 					{
 						output[i]=b[bIndex];
 						bIndex++;
@@ -141,19 +129,21 @@ public class ImageList
 		return output;
 	}
 	
-	public Deque<DuplicateImages> CountDupes()
+	public Deque<DuplicateImages> CountDupes(boolean deleteAll)
 	{
+		//Counts the number of duplicate images in the map and returns them
+		array=new ArrayList<ImageData>(map.values()).toArray();
+		array=MergeSort(0, array.length);
 		Deque<DuplicateImages> output = new LinkedList<DuplicateImages>();
 		for (int i=0; i<array.length-1;i++)
 		{
-			double thisRatio = array[i].getRatio();
-			
+			double thisRatio = ((ImageData)array[i]).getRatio();
 			int j=i+1;
 			boolean loop=true;
 			while(loop)
 			{
 				//Compares images within a certain threshold based on aspect ratio.
-				DuplicateImages thisPair = array[i].compareTo(array[j]);
+				DuplicateImages thisPair = ((ImageData)array[i]).compareTo((ImageData)array[j]);
 				
 				if (thisPair!=null && deleteAll==false)
 				{
@@ -164,7 +154,7 @@ public class ImageList
 					thisPair.deleteSmallerImage();
 				}
 				
-				if(Math.abs(thisRatio-array[j].getRatio())>.1)
+				if(Math.abs(thisRatio-((ImageData)array[j]).getRatio())>.1)
 					loop=false;
 				
 				j++;
@@ -173,7 +163,21 @@ public class ImageList
 
 			}
 		}
+		array=null;
 		return output;
 	}
 	
+	public void removeMissingImages()
+	{
+		/*
+		Removes missing images from the list.
+		*/
+		
+		Iterator<File> iter = map.keySet().iterator();
+		while(iter.hasNext())
+		{
+			File thisFile = iter.next();
+			if(!thisFile.exists()) {iter.remove();}
+		}
+	}
 }

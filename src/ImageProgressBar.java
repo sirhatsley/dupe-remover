@@ -4,6 +4,8 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -19,9 +21,11 @@ public class ImageProgressBar extends JPanel implements PropertyChangeListener
 	private ImageProgressBar it;
 	static int max = 100;
 	private JFrame frame;
+	private Deque<File> imageStack;
 
 	public ImageProgressBar() 
 	{
+		
 		this.max=max;
 		pbar = new JProgressBar();
 		pbar.setMinimum(0);
@@ -34,8 +38,10 @@ public class ImageProgressBar extends JPanel implements PropertyChangeListener
 		pbar.setValue(newValue);
 	}
 	
-	public void constructList(ImageList list)
+	public void constructList(ImageList list, File path,boolean recurse)
 	{
+		imageStack = new LinkedList<File>();
+		this.generateList(path, recurse);
 		it = new ImageProgressBar();
 		frame = new JFrame("Progress");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -50,51 +56,24 @@ public class ImageProgressBar extends JPanel implements PropertyChangeListener
 		task.execute();
 	}
 	
-	
-	
-	/*public static void constructList(ImageList list)
+	private void generateList(File path, boolean recurse)
 	{
-		//ImageList list = new ImageList(new File("C:\\Users\\Tim\\Desktop\\SugoiBox"));
-		final ImageProgressBar it = new ImageProgressBar(list.filesLength);
-		
-		JFrame frame = new JFrame("Progress");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(it);
-		frame.pack();
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-		int newIndex=0;
-		
-		// run a loop to demonstrate raising
-		for (int i = 0; i <= list.filesLength; i++) 
+		//Recursively generates the list of files that will be added to ImageList
+		File[] fileList=path.listFiles();
+		for(int i=0; i<fileList.length; i++)
 		{
-			final int percent = i;
-			try 
+			if (fileList[i].isDirectory()&&recurse)
 			{
-				SwingUtilities.invokeLater(new Runnable() 
-				{
-					public void run()
-					{
-						it.updateBar(percent);
-						list.constructImage(percent);
-					}
-				});
-				java.lang.Thread.sleep(100);
-				
-			  } catch (InterruptedException e) {;}
-		}
-		
-		SwingUtilities.invokeLater(new Runnable() 
-		{
-			public void run()
-			{
-				frame.setVisible(false);
-				
+				generateList(fileList[i],recurse);
 			}
-		});
-	}	*/
-
+			if (fileList[i].isFile())
+			{
+				imageStack.add(fileList[i]);
+			}
+		}
+	}
+	
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt)
 	{
@@ -115,11 +94,11 @@ public class ImageProgressBar extends JPanel implements PropertyChangeListener
 		@Override
 		protected Void doInBackground() throws Exception
 		{
-			for (int i = 0; i <= list.filesLength; i++) 
+			int initialSize = imageStack.size();
+			while (imageStack.size()>0) 
 			{
-				final int percent = i;
-				list.constructImage(percent);
-				this.setProgress(i*100/list.filesLength);
+				list.addImage(imageStack.pop());
+				this.setProgress((initialSize-imageStack.size())*100/initialSize);
 			}
 			return null;
 		}
@@ -128,7 +107,7 @@ public class ImageProgressBar extends JPanel implements PropertyChangeListener
 		public void done()
 		{
 			frame.setVisible(false);
-			list.MergeSort();
+			Driver.deleteDupes();
 		}
 		
 	}

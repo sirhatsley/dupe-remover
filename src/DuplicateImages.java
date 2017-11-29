@@ -28,4 +28,10 @@ public class DuplicateImages
 			image2.imagePath.deleteOnExit();
 		}
 	}
+	
+	public void deleteImage(int i)
+	{
+		if (i==1) {image1.imagePath.deleteOnExit();}
+		if (i==2) {image2.imagePath.deleteOnExit();}
+	}
 }

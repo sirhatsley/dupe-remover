@@ -2,9 +2,11 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.Serializable;
 
-public class ImageData
+public class ImageData implements Serializable
 {
+	private static final long serialVersionUID = -1;
 	File imagePath;
 	int height;
 	int width;
@@ -15,6 +17,9 @@ public class ImageData
 	final int SEGMENTS = 4;
 	int greens;
 	int blues;
+	
+	String source;
+	
 	public ImageData(File imagePath, BufferedImage buffer)
 	{
 

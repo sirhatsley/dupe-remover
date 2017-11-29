@@ -14,43 +14,41 @@ public class Driver
 	private static FileChooser choose;
 	private static boolean deleteAll;
 	private static ImageList list;
+	private static File path;
 	
 	public static void main(String[] args)
 	{
 		try
 		{
-		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
 		catch(Exception e){}
 		choose = new FileChooser();
-		choose.setTitle("Please select a file...");
+		choose.setTitle("Please select a folder...");
 		choose.setLocationRelativeTo(null);
 		choose.setVisible(true);
 		//ImageProgressBar.main(null);
 	}
 	
-	public static void loadImages(File file, boolean deleteEverything, boolean sourceAll)
+	public static void loadImages(File file, boolean deleteEverything, boolean sourceAll,boolean recurse)
 	{
 		deleteAll=deleteEverything;
 		choose.setVisible(false);
-
+		path=file;
 		new Thread(new Runnable() {
 			public void run()
 			{
-				list = new ImageList(file,deleteAll,sourceAll);
-				new ImageProgressBar().constructList(list);
-				
+				list = ListLoader.LoadList(file);
+				new ImageProgressBar().constructList(list,file,recurse);
 			}
 		}).start();
-		
-
 	}
 	
 	public static void deleteDupes()
 	{
 		Deque<DuplicateImages> dupes;
-		dupes=list.CountDupes();
-
+		dupes=list.CountDupes(deleteAll);
+		ListLoader.SaveList(path, list);
 		if (dupes.size()==0)
 		{
 			if (deleteAll==false)
