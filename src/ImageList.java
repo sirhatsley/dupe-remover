@@ -2,6 +2,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -149,6 +150,44 @@ public class ImageList implements Serializable
 			catch (IOException ex){thisPath.delete();}
 		}
 		catch (MalformedURLException ex){System.out.println("Bad URL!");}
+	}
+	
+	public boolean copyOrSource(File image)
+	{
+		/*
+		Returns true if the map already contains the image, otherwise copies the
+		image into the folder.
+		*/
+		
+		if(map.containsKey(image))
+		{
+			return true;
+		}
+		
+		File newFile = new File((path.toString()+"\\")+image.getName());
+		
+		try
+		{
+			FileOutputStream fos = new FileOutputStream(newFile);
+			FileInputStream fin = new FileInputStream(image);
+			
+			byte[] buf = new byte[1024];
+			int i=0;
+			while ((i=fin.read(buf))!=-1)
+			{
+			   fos.write(buf, 0, i);
+			}
+			fin.close();
+			fos.close();
+			
+			addImage(newFile);
+			image.delete();
+		}
+		catch (FileNotFoundException fnfe) {newFile.delete();}
+		catch (IOException IOE) {newFile.delete();}
+		
+		System.out.println("Image added: " +newFile.getPath());
+		return false;
 	}
 	
 	public int getSize()
