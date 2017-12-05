@@ -102,6 +102,9 @@ public class ImageList implements Serializable
 	
 	public void downloadImage(String urlString,String source)
 	{
+		/*
+		Downloads an image and attempts to add it into the folder.
+		*/
 		try
 		{
 			System.out.println(source);
@@ -126,24 +129,26 @@ public class ImageList implements Serializable
 				i++;
 			}
 			
-			System.out.println(thisPath);
-			thisPath.createNewFile();
-			InputStream in = new BufferedInputStream(url.openStream());
-			FileOutputStream fos = new FileOutputStream(thisPath);
-			byte[] buf = new byte[1024];
-			int n = 0;
-			while (-1!=(n=in.read(buf)))
+			System.out.println(thisPath);			
+			try
 			{
-			   fos.write(buf, 0, n);
+				thisPath.createNewFile();
+				FileOutputStream fos = new FileOutputStream(thisPath);
+				InputStream in = new BufferedInputStream(url.openStream());
+				byte[] buf = new byte[1024];
+				int n = 0;
+				while (-1!=(n=in.read(buf)))
+				{
+				   fos.write(buf, 0, n);
+				}
+				fos.close();
+				in.close();
+
+				addImage(thisPath, source);
 			}
-			fos.close();
-			in.close();
-			
-			addImage(thisPath, source);
+			catch (IOException ex){thisPath.delete();}
 		}
 		catch (MalformedURLException ex){System.out.println("Bad URL!");}
-		catch (FileNotFoundException ex){ex.printStackTrace();}
-		catch (IOException ex){ex.printStackTrace();}
 	}
 	
 	public int getSize()
