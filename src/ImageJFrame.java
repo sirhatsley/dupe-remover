@@ -206,7 +206,6 @@ public class ImageJFrame extends javax.swing.JFrame
 		{
 			this.setVisible(false);
 			JOptionPane.showMessageDialog(null, "Complete.");
-			System.exit(0);
 		}
 	}
 	/**
