@@ -35,7 +35,7 @@ public class DuplicateImages
 		source=null;
 		if (image1.source!=null&&image1.source!="") {source=image1.source;}
 		if (image2.source!=null&&image2.source!="") {source=image2.source;}
-		if (i==1) {image1.imagePath.deleteOnExit();image2.source=source;}
-		if (i==2) {image2.imagePath.deleteOnExit();image1.source=source;}
+		if (i==1) {image1.imagePath.delete();image2.source=source;}
+		if (i==2) {image2.imagePath.delete();image1.source=source;}
 	}
 }
