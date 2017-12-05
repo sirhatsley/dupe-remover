@@ -42,28 +42,23 @@ public class SourceFinder
 		//System.out.println(findSource(new File("C:\\Users\\Tim\\Google Drive\\Neggiri\\0052f514afce3defb119120547e3c339.jpg")));
 	}
 	
-	public static void addSource(ImageData image)
-	{
-		/*
-		Adds a source to an image that already exists.
-		*/
-	}
 	
-	public static ImageData downloadImageFromUrl(String url,String source)
+	public static String findImageFromSource(String source)
 	{
 		//Takes in an image URL and Source (if one is supplied) and downloads
 		//the image while returning it to
-		ImageData output=null;
+		String output=null;
 		
-		if (source==null)
+		if (source!=null)
 		{
-			if (url.contains("https://twitter.com/"))
+			if (source.contains("https://twitter.com/"))
 			{
-
+				output=getImageFromSite(source,WebSources.TWITTER);
+				output=output.substring(0,output.lastIndexOf(':'));
 			}
-			else if (url.contains("https://twitter.com/"))
+			else if (source.contains("https://tumblr.com/"))
 			{
-
+				output=getImageFromSite(source,WebSources.TUMBLR);
 			}
 		}
 		
@@ -101,7 +96,7 @@ public class SourceFinder
 		return null;
 	}
 	
-	public static String getImageFromSite(String url,WebSources site)
+	private static String getImageFromSite(String url,WebSources site)
 	{
 
 		String imageUrl = null;

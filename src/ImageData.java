@@ -18,7 +18,7 @@ public class ImageData implements Serializable
 	int greens;
 	int blues;
 	
-	String source;
+	public String source;
 	
 	public ImageData(File imagePath, BufferedImage buffer)
 	{

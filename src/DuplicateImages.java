@@ -20,18 +20,22 @@ public class DuplicateImages
 		//Deletes whichever image is smaller
 		if (image1.width<image2.width)
 		{
-			image1.imagePath.deleteOnExit();
+			deleteImage(1);
 		}
 		
 		if (image2.width<=image1.width)
 		{
-			image2.imagePath.deleteOnExit();
+			deleteImage(2);
 		}
 	}
 	
 	public void deleteImage(int i)
 	{
-		if (i==1) {image1.imagePath.deleteOnExit();}
-		if (i==2) {image2.imagePath.deleteOnExit();}
+		String source;
+		source=null;
+		if (image1.source!=null&&image1.source!="") {source=image1.source;}
+		if (image2.source!=null&&image2.source!="") {source=image2.source;}
+		if (i==1) {image1.imagePath.deleteOnExit();image2.source=source;}
+		if (i==2) {image2.imagePath.deleteOnExit();image1.source=source;}
 	}
 }

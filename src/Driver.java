@@ -1,6 +1,8 @@
 
 import java.io.File;
 import java.util.Deque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -23,7 +25,7 @@ public class Driver
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
 		catch(Exception e){}
-		choose = new FileChooser();
+		choose = new FileChooser(null);
 		choose.setTitle("Please select a folder...");
 		choose.setLocationRelativeTo(null);
 		choose.setVisible(true);
@@ -35,10 +37,10 @@ public class Driver
 		deleteAll=deleteEverything;
 		choose.setVisible(false);
 		path=file;
+		list = ListLoader.LoadList(file);
 		new Thread(new Runnable() {
 			public void run()
 			{
-				list = ListLoader.LoadList(file);
 				new ImageProgressBar().constructList(list,file,recurse);
 			}
 		}).start();
@@ -48,7 +50,7 @@ public class Driver
 	{
 		Deque<DuplicateImages> dupes;
 		dupes=list.CountDupes(deleteAll);
-		ListLoader.SaveList(path, list);
+		ListLoader.SaveList(list);
 		if (dupes.size()==0)
 		{
 			if (deleteAll==false)

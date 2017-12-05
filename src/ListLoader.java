@@ -36,7 +36,7 @@ public class ListLoader
 			}
 			else
 			{
-				output=new ImageList();
+				output=new ImageList(path);
 			}
 			
 		}
@@ -45,8 +45,9 @@ public class ListLoader
 		return output;
 	}
 	
-	public static void SaveList(File path, ImageList list)
+	public static void SaveList(ImageList list)
 	{
+		File path=list.getPath();
 		File thisList = new File(("dat\\"+path.getName()+".dat"));
 		try
 		{

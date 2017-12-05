@@ -51,6 +51,7 @@ public class ImageProgressBar extends JPanel implements PropertyChangeListener
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		int newIndex=0;
+		//System.out.println(imageStack.size());
 		task = new ImageWorker(list);
 		task.addPropertyChangeListener(this);
 		task.execute();
@@ -95,10 +96,12 @@ public class ImageProgressBar extends JPanel implements PropertyChangeListener
 		protected Void doInBackground() throws Exception
 		{
 			int initialSize = imageStack.size();
-			while (imageStack.size()>0) 
+			for(int i=0;i<initialSize;i++) 
 			{
 				list.addImage(imageStack.pop());
-				this.setProgress((initialSize-imageStack.size())*100/initialSize);
+				int thisProgress = initialSize-imageStack.size();
+				System.out.println(imageStack.size());
+				this.setProgress(i*100/initialSize);
 			}
 			return null;
 		}

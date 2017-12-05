@@ -1,13 +1,22 @@
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /*
@@ -17,29 +26,45 @@ delete images.
 
 public class ImageList implements Serializable
 {
+	public ArrayList<String> preferences;
 	private static final long serialVersionUID = -1;
 	private File path;
-	//private LinkedList<ImageData> list;
 	private HashMap<File,ImageData> map;
 	private Object[] array;
-	private boolean sourceAll;
+	public boolean recurse;
 	
 	
-	public ImageList()
+	
+	public ImageList(File path)
 	{
-		sourceAll=false;
+		this.path=path;
 		map = new HashMap<File,ImageData>();
-		//list = new LinkedList<ImageData>();
 	}
 	
-	public ImageList(File path, boolean sourceAll)
+	public File getPath()
 	{
-		this.sourceAll=sourceAll;
-		map = new HashMap<File,ImageData>();
-		//list = new LinkedList<ImageData>();
+		return path;
 	}
 	
-	public synchronized void addImage(File image)
+	public void addImage(File image)
+	{
+		addImage(image,null);
+	}
+	
+	public String getSourceFromFile(String key)
+	{
+		File thisFile = new File(key.trim());
+		
+		System.out.println(thisFile.exists());
+		System.out.println(map.containsKey(thisFile));
+		
+		ImageData thisImage = map.get(thisFile);
+		
+		System.out.println(thisImage);
+		return thisImage.source;
+	}
+	
+	private void addImage(File image, String source)
 	{
 		if (image==null)
 		{
@@ -53,18 +78,16 @@ public class ImageList implements Serializable
 			ImageData thisImage;
 			if(!map.containsKey(image))
 			{
+				System.out.println("Image added");
 				buffer = ImageIO.read(image);
 				thisImage = new ImageData(image,buffer);
+				thisImage.source=source;
 				map.put(image, thisImage);
 				//list.add(thisImage);
 			}
 			else
 			{
 				System.out.println("Image already added");
-			}
-			if(sourceAll==true)
-			{
-				System.out.println(SourceFinder.findSource(image));
 			}
 		}
 		catch(IOException e)
@@ -75,6 +98,52 @@ public class ImageList implements Serializable
 		{
 			System.out.println(""+image+" not a valid image file.");
 		}
+	}
+	
+	public void downloadImage(String urlString,String source)
+	{
+		try
+		{
+			System.out.println(source);
+			if (urlString.length()==0 && source.length()>0)
+			{
+				System.out.println("hi");
+				urlString=null;
+				urlString = SourceFinder.findImageFromSource(source);
+				System.out.println(urlString);
+			}
+			
+			URL url = new URL(urlString);
+			String fileName = new String (path.toString()+"\\"+
+					urlString.substring(urlString.lastIndexOf('/')+1));
+			File thisPath=new File(fileName);
+			
+			int i=0;
+			while (thisPath.exists() && i<1000)
+			{
+				thisPath=new File(fileName.substring(0,fileName.lastIndexOf('.'))
+				+i+fileName.substring(fileName.lastIndexOf('.')));
+				i++;
+			}
+			
+			System.out.println(thisPath);
+			thisPath.createNewFile();
+			InputStream in = new BufferedInputStream(url.openStream());
+			FileOutputStream fos = new FileOutputStream(thisPath);
+			byte[] buf = new byte[1024];
+			int n = 0;
+			while (-1!=(n=in.read(buf)))
+			{
+			   fos.write(buf, 0, n);
+			}
+			fos.close();
+			in.close();
+			
+			addImage(thisPath, source);
+		}
+		catch (MalformedURLException ex){System.out.println("Bad URL!");}
+		catch (FileNotFoundException ex){ex.printStackTrace();}
+		catch (IOException ex){ex.printStackTrace();}
 	}
 	
 	public int getSize()
@@ -144,14 +213,40 @@ public class ImageList implements Serializable
 			{
 				//Compares images within a certain threshold based on aspect ratio.
 				DuplicateImages thisPair = ((ImageData)array[i]).compareTo((ImageData)array[j]);
-				
 				if (thisPair!=null && deleteAll==false)
 				{
+					System.out.println(thisPair.image1.imagePath.getParentFile().getName());
 					output.push(thisPair);
 				}
 				else if (thisPair!=null && deleteAll==true)
 				{
-					thisPair.deleteSmallerImage();
+					if (preferences==null)
+					{
+						thisPair.deleteSmallerImage();
+					}
+					else
+					{
+						String path1=thisPair.image1.imagePath.getParentFile().getName();
+						String path2=thisPair.image2.imagePath.getParentFile().getName();
+						int index1 = preferences.indexOf(path1);
+						int index2 = preferences.indexOf(path2);
+						
+						if (index1>index2)
+						{
+							System.out.println("deleting an image from "+path2);
+							thisPair.deleteImage(2);
+						}
+						else if(index2>index1)
+						{
+							System.out.println("deleting an image from "+path1);
+							thisPair.deleteImage(1);
+						}
+						else
+						{
+							thisPair.deleteSmallerImage();
+						}
+					}
+
 				}
 				
 				if(Math.abs(thisRatio-((ImageData)array[j]).getRatio())>.1)
