@@ -31,7 +31,7 @@ public class ListLoader
 				FileInputStream fileInputStream = new FileInputStream(thisList);
 				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 				output = (ImageList)objectInputStream.readObject();
-				output.removeMissingImages();
+				//output.removeMissingImages();
 				fileInputStream.close();
 			}
 			else

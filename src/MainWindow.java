@@ -71,6 +71,37 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 		this.setTransferHandler(null);
 	}
 	
+	public void enableEverything()
+	{
+		imageUrlField.setEnabled(true);
+		deleteAllButton.setEnabled(true);
+		deleteSomeButton.setEnabled(true);
+		addImageButton.setEnabled(true);
+		sourceInputField.setEnabled(true);
+		imagePathField.setEnabled(true);
+		sourceButton.setEnabled(true);
+		directorySelect.setEnabled(true);
+		addFolderButton.setEnabled(true);
+		configButton.setEnabled(true);
+		this.setTransferHandler(handler);
+		//list.removeMissingImages();
+	}
+	
+	public void disableEverything()
+	{
+		imageUrlField.setEnabled(false);
+		deleteAllButton.setEnabled(false);
+		deleteSomeButton.setEnabled(false);
+		addImageButton.setEnabled(false);
+		sourceInputField.setEnabled(false);
+		imagePathField.setEnabled(false);
+		sourceButton.setEnabled(false);
+		directorySelect.setEnabled(false);
+		addFolderButton.setEnabled(false);
+		configButton.setEnabled(false);
+		this.setTransferHandler(null);
+	}
+	
 	private TransferHandler handler = new TransferHandler()
 	{
 		public boolean canImport(TransferHandler.TransferSupport support)
@@ -85,6 +116,7 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 		{
 			if (!canImport(support))
 			{return false;}
+			//disableEverything();
 			
 			Transferable t = support.getTransferable();
 			try
@@ -92,17 +124,21 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 				List<File> theFiles = (List<File>)t.getTransferData(DataFlavor.javaFileListFlavor);
 				for (File f : theFiles)
 				{
-					if(list.copyOrSource(f))
+					if(list.copyOrSource(f,sourceInputField.getText()))
 					{
 						sourceOutputField.setText(list.getSourceFromFile(f.toString()));
 					}
 				}
 				
 				ListLoader.SaveList(list);
+				
 			}
 			catch (UnsupportedFlavorException e) {return false;}
 			catch (IOException e) {return false;}
-			
+			finally
+			{
+				//enableEverything();
+			}
 			return true;
 		}
 	};
@@ -129,6 +165,7 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
         jLabel2 = new javax.swing.JLabel();
         addImageButton = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
         sourceImagePanel = new javax.swing.JPanel();
         sourceOutputField = new javax.swing.JTextField();
         imagePathField = new javax.swing.JTextField();
@@ -204,7 +241,9 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
             }
         });
 
-        jLabel5.setText("Note: You can add an image by dragging it into the window.");
+        jLabel5.setText("Note: You can add an image by dragging it into the window, or with");
+
+        jLabel7.setText("a valid link to Twitter, Tumblr, or Deviantart in the Source box.");
 
         javax.swing.GroupLayout addImagePanelLayout = new javax.swing.GroupLayout(addImagePanel);
         addImagePanel.setLayout(addImagePanelLayout);
@@ -228,6 +267,10 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
                         .addComponent(jLabel5)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, addImagePanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel7)
+                .addGap(36, 36, 36))
         );
         addImagePanelLayout.setVerticalGroup(
             addImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -243,7 +286,9 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
                     .addComponent(addImageButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel5)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         sourceOutputField.setText("Please select an image to source...");
@@ -414,7 +459,7 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
                     .addComponent(addFolderButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(1, 1, 1))
         );
 
         pack();
@@ -477,7 +522,14 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 
     private void deleteSomeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteSomeButtonActionPerformed
     {//GEN-HEADEREND:event_deleteSomeButtonActionPerformed
-		ImageJFrame listFrame = new ImageJFrame(list.CountDupes(false));
+		Deque<DuplicateImages> deque =list.CountDupes(false);
+		
+		if (deque.size()==0)
+		{
+			JOptionPane.showMessageDialog(null, "No duplicate images to remove!","Complete" ,JOptionPane.PLAIN_MESSAGE);
+			return;
+		}
+		ImageJFrame listFrame = new ImageJFrame(deque, this);
 		listFrame.setResizable(false);
 		listFrame.setLocationRelativeTo(null);
 		listFrame.setVisible(true);
@@ -490,11 +542,12 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 		{
 			sourceOutputField.setText(thisSource);
 		}
+		
     }//GEN-LAST:event_sourceButtonActionPerformed
 
     private void configButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_configButtonActionPerformed
     {//GEN-HEADEREND:event_configButtonActionPerformed
-        String cool = JOptionPane.showInputDialog("Cool");
+        String cool = JOptionPane.showInputDialog("Input the heirarchy of folders in which you would like to preserve files (Comma separated)");
 		preferences=new ArrayList<String>();
 		String[] tempArray=cool.split(",");
 		
@@ -571,11 +624,13 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 		/*
 		Adds an image using the add image fields
 		*/
+		
+		//disableEverything();
 		list.downloadImage(imageUrlField.getText().trim(), sourceInputField.getText().trim());
+		//enableEverything();
 		
 		imageUrlField.setText("");
 		sourceInputField.setText("");
-		ListLoader.SaveList(list);
 	}
 	
 	private void generateList(File path, boolean recurse)
@@ -628,6 +683,7 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JProgressBar jProgressBar1;
@@ -682,17 +738,8 @@ public class MainWindow extends javax.swing.JFrame implements PropertyChangeList
 		@Override
 		public void done()
 		{
-			imageUrlField.setEnabled(true);
-			deleteAllButton.setEnabled(true);
-			deleteSomeButton.setEnabled(true);
-			addImageButton.setEnabled(true);
-			sourceInputField.setEnabled(true);
-			imagePathField.setEnabled(true);
-			sourceButton.setEnabled(true);
-			directorySelect.setEnabled(true);
-			addFolderButton.setEnabled(true);
-			configButton.setEnabled(true);
 			jProgressBar1.setVisible(false);
+			enableEverything();
 			ListLoader.SaveList(list);
 		}
 		

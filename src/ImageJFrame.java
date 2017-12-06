@@ -19,6 +19,7 @@ public class ImageJFrame extends javax.swing.JFrame
 	private int i;
 	private DuplicateImages thisDupe;
 	private static Deque<DuplicateImages> dupes;
+	private MainWindow window;
 	/**
 	 * Creates new form ImageJFrame
 	 */
@@ -27,8 +28,10 @@ public class ImageJFrame extends javax.swing.JFrame
 		initComponents();
 	}
 	
-	public ImageJFrame(Deque<DuplicateImages> dupes)
+	public ImageJFrame(Deque<DuplicateImages> dupes, MainWindow window)
 	{
+		this.window=window;
+		window.disableEverything();
 		initComponents();
 		this.dupes=dupes;
 		jButton1.setText("Delete Smaller");
@@ -39,7 +42,6 @@ public class ImageJFrame extends javax.swing.JFrame
 		jProgressBar1.setMaximum(size);
 		i=0;
 		nextImage();
-
 	}
 
 
@@ -205,7 +207,8 @@ public class ImageJFrame extends javax.swing.JFrame
 		else
 		{
 			this.setVisible(false);
-			JOptionPane.showMessageDialog(null, "Complete.");
+			JOptionPane.showMessageDialog(null, "All duplicate images have been removed.","Complete" ,JOptionPane.PLAIN_MESSAGE);
+			window.enableEverything();
 		}
 	}
 	/**

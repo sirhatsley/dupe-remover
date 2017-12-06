@@ -62,6 +62,17 @@ public class ImageList implements Serializable
 		ImageData thisImage = map.get(thisFile);
 		
 		System.out.println(thisImage);
+		
+		if (thisImage.source==null)
+		{
+			thisImage.source = SourceFinder.findSource(thisImage.imagePath);
+			if (thisImage.source==null)
+			{
+				return "No source found!";
+			}
+		}
+		
+		ListLoader.SaveList(this);
 		return thisImage.source;
 	}
 	
@@ -122,6 +133,12 @@ public class ImageList implements Serializable
 					urlString.substring(urlString.lastIndexOf('/')+1));
 			File thisPath=new File(fileName);
 			
+			if (!fileName.contains("."))
+			{
+				java.awt.Toolkit.getDefaultToolkit().beep();
+				return;
+			}
+			
 			int i=0;
 			while (thisPath.exists() && i<1000)
 			{
@@ -144,15 +161,16 @@ public class ImageList implements Serializable
 				}
 				fos.close();
 				in.close();
-
+				
 				addImage(thisPath, source);
+				ListLoader.SaveList(this);
 			}
-			catch (IOException ex){thisPath.delete();}
+			catch (IOException ex){thisPath.delete();java.awt.Toolkit.getDefaultToolkit().beep();}
 		}
-		catch (MalformedURLException ex){System.out.println("Bad URL!");}
+		catch (MalformedURLException ex){java.awt.Toolkit.getDefaultToolkit().beep();}
 	}
 	
-	public boolean copyOrSource(File image)
+	public boolean copyOrSource(File image,String source)
 	{
 		/*
 		Returns true if the map already contains the image, otherwise copies the
@@ -164,7 +182,31 @@ public class ImageList implements Serializable
 			return true;
 		}
 		
-		File newFile = new File((path.toString()+"\\")+image.getName());
+		if (source!=null)
+		{
+			if (source.trim().length()==0)
+			{
+				source=null;
+			}
+		}
+		
+		if (!image.getName().contains("."))
+		{
+			java.awt.Toolkit.getDefaultToolkit().beep();
+			return false;
+		}
+		
+		String fileName = new String ((path.toString()+"\\")+image.getName());
+		File newFile = new File(fileName);
+		
+		int i=0;
+		while (newFile.exists() && i<1000)
+		{
+			newFile=new File(fileName.substring(0,fileName.lastIndexOf('.'))
+			+i+fileName.substring(fileName.lastIndexOf('.')));
+			i++;
+		}		
+		
 		
 		try
 		{
@@ -172,7 +214,7 @@ public class ImageList implements Serializable
 			FileInputStream fin = new FileInputStream(image);
 			
 			byte[] buf = new byte[1024];
-			int i=0;
+			i=0;
 			while ((i=fin.read(buf))!=-1)
 			{
 			   fos.write(buf, 0, i);
@@ -180,11 +222,12 @@ public class ImageList implements Serializable
 			fin.close();
 			fos.close();
 			
-			addImage(newFile);
+			addImage(newFile,source);
 			image.delete();
+			ListLoader.SaveList(this);
 		}
-		catch (FileNotFoundException fnfe) {newFile.delete();}
-		catch (IOException IOE) {newFile.delete();}
+		catch (FileNotFoundException fnfe) {newFile.delete(); java.awt.Toolkit.getDefaultToolkit().beep();}
+		catch (IOException IOE) {newFile.delete(); java.awt.Toolkit.getDefaultToolkit().beep();}
 		
 		System.out.println("Image added: " +newFile.getPath());
 		return false;
@@ -259,9 +302,24 @@ public class ImageList implements Serializable
 				DuplicateImages thisPair = ((ImageData)array[i]).compareTo((ImageData)array[j]);
 				if (thisPair!=null && deleteAll==false)
 				{
-					System.out.println(thisPair.image1.imagePath.getParentFile().getName());
-					output.push(thisPair);
+					if (thisPair.image1.imagePath.exists()&&thisPair.image2.imagePath.exists())
+					{
+						//If both images still exist
+						System.out.println(thisPair.image1.imagePath.getParentFile().getName());
+						output.push(thisPair);
+					}
+					else if (thisPair.image1.imagePath.exists())
+					{
+						//If image2 does not exist
+						thisPair.deleteImage(2);
+					}
+					else if (thisPair.image2.imagePath.exists())
+					{
+						//If image1 does not exist
+						thisPair.deleteImage(1);
+					}
 				}
+				
 				else if (thisPair!=null && deleteAll==true)
 				{
 					if (preferences==null)
@@ -318,5 +376,6 @@ public class ImageList implements Serializable
 			File thisFile = iter.next();
 			if(!thisFile.exists()) {iter.remove();}
 		}
+		ListLoader.SaveList(this);
 	}
 }

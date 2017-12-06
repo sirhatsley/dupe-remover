@@ -56,7 +56,7 @@ public class SourceFinder
 				output=getImageFromSite(source,WebSources.TWITTER);
 				output=output.substring(0,output.lastIndexOf(':'));
 			}
-			else if (source.contains("https://tumblr.com/"))
+			else if (source.contains("tumblr.com/"))
 			{
 				output=getImageFromSite(source,WebSources.TUMBLR);
 			}
