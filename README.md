@@ -1,2 +1,2 @@
 # dupe-remover
-Deletes dupes yo
+Deletes duplicate images from a directory on your computer
